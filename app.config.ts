@@ -21,7 +21,7 @@ const config: ExpoConfig = {
         },
       },
     ],
-    './plugins/withVpnCapabilities',
+    './plugins/withVpnCapabilities.js',
   ],
   ios: {
     bundleIdentifier: 'com.pulsevpn.app',

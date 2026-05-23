@@ -1,9 +1,8 @@
-import type { ConfigPlugin } from '@expo/config-plugins';
-import { withEntitlementsPlist, withInfoPlist } from '@expo/config-plugins';
+const { withEntitlementsPlist, withInfoPlist } = require('@expo/config-plugins');
 
 const APP_GROUP_IDENTIFIER = 'group.com.pulsevpn.shared';
 
-const withVpnCapabilities: ConfigPlugin = (config) => {
+const withVpnCapabilities = (config) => {
   config = withInfoPlist(config, (pluginConfig) => {
     pluginConfig.modResults.NSVPNUsageDescription =
       'Pulse VPN uses a packet tunnel to route traffic through the selected VPN server.';
@@ -23,4 +22,4 @@ const withVpnCapabilities: ConfigPlugin = (config) => {
   return config;
 };
 
-export default withVpnCapabilities;
+module.exports = withVpnCapabilities;
