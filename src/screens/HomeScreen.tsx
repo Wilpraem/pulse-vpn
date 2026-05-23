@@ -54,7 +54,7 @@ export function HomeScreen() {
         }),
       });
     }
-  }, [connection.status, dispatch, state.settings]);
+  }, [connection.status, dispatch, state.selectedServer, state.settings]);
 
   const server = connection.selectedServer ?? state.selectedServer;
   const probe = connection.selectedProbe ?? state.probeResults.find((item) => item.serverId === server?.id);

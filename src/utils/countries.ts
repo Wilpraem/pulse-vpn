@@ -34,7 +34,13 @@ export function flagToCountryCode(input: string): string | undefined {
     return undefined;
   }
 
-  return String.fromCharCode(regional[0] - FLAG_OFFSET, regional[1] - FLAG_OFFSET).toUpperCase();
+  const first = regional[0];
+  const second = regional[1];
+  if (first === undefined || second === undefined) {
+    return undefined;
+  }
+
+  return String.fromCharCode(first - FLAG_OFFSET, second - FLAG_OFFSET).toUpperCase();
 }
 
 export function countryNameToCode(countryName: string): string | undefined {
