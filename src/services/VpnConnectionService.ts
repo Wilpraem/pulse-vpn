@@ -21,6 +21,7 @@ const LAST_SUCCESSFUL_SERVER_KEY = 'pulsevpn.last-successful-server.v1';
 
 export interface ConnectOptions {
   settings: AppSettings;
+  preferredServer?: ServerConfig;
   signal?: AbortSignal;
   onStateChange?: (state: VpnConnectionState) => void;
   onProbeResults?: (results: ProbeResult[]) => void;
@@ -68,14 +69,18 @@ export class VpnConnectionService {
         localCountryCode: options.settings.localCountryCode,
         lastSuccessfulServerId: lastSuccessfulServerId ?? undefined,
       });
+      const candidates = prioritizePreferredServer(
+        ranked,
+        options.settings.autoSelectBestServer ? undefined : options.preferredServer?.id,
+      );
 
-      if (ranked.length === 0) {
+      if (candidates.length === 0) {
         throw new Error(NO_NETWORK_OR_BLOCKED_MESSAGE);
       }
 
       this.setState({ status: 'connecting' }, options.onStateChange);
 
-      for (const candidate of ranked.slice(0, 5)) {
+      for (const candidate of candidates.slice(0, 5)) {
         const attempt = await this.tryConnect(candidate.server, candidate.probe);
         connectionAttempts.push(attempt);
 
@@ -190,3 +195,19 @@ function mergeAbortSignals(primary: AbortSignal, secondary?: AbortSignal): Abort
 }
 
 export const vpnConnectionService = new VpnConnectionService();
+
+function prioritizePreferredServer<TRanked extends { server: ServerConfig }>(
+  ranked: TRanked[],
+  preferredServerId?: string,
+): TRanked[] {
+  if (!preferredServerId) {
+    return ranked;
+  }
+
+  const preferred = ranked.find((candidate) => candidate.server.id === preferredServerId);
+  if (!preferred) {
+    return ranked;
+  }
+
+  return [preferred, ...ranked.filter((candidate) => candidate.server.id !== preferredServerId)];
+}
