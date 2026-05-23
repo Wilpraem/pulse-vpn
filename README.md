@@ -20,6 +20,7 @@ Current analysis: 554 raw `vless://` configs. Observed transports are `tcp`, `xh
 - `ServerSelectionService`: ranks reachable servers by foreign-country preference, latency, jitter, protocol validity and last successful server fallback.
 - `VpnConnectionService`: orchestrates internet check, refresh, parse, probe, rank and native VPN start with fallback candidates.
 - `DiagnosticsService`: network state, captive portal signal, parser/probe/connection errors and debug logs.
+- `BackgroundRefreshService`: registers a 30-minute server-list refresh task using Expo Background Fetch.
 - `modules/vpn-bridge`: Expo native module for iOS `NETunnelProviderManager` and TCP probe.
 - `ios/PacketTunnel`: `NEPacketTunnelProvider` extension source.
 
@@ -44,6 +45,10 @@ On Connect:
 9. Try next ranked candidates if VPN start fails.
 
 If nothing is reachable, the app shows: `Нет интернета или соединение сильно блокируется`.
+
+## Background Refresh
+
+The app registers `pulsevpn.server-list.refresh.v1` with `minimumInterval: 1800` seconds. Android can run this close to the requested period depending on battery policy. iOS Background Fetch is opportunistic: Apple does not guarantee exact 30-minute execution, but the app declares `UIBackgroundModes=fetch` and requests the minimum 30-minute interval.
 
 ## Probe Strategy
 

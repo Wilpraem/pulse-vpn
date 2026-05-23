@@ -29,6 +29,7 @@ const config: ExpoConfig = {
     infoPlist: {
       NSLocalNetworkUsageDescription: 'Pulse VPN probes configured servers to select the most stable route.',
       NSVPNUsageDescription: 'Pulse VPN uses a packet tunnel to route traffic through the selected VPN server.',
+      UIBackgroundModes: ['fetch'],
     },
   },
   android: {

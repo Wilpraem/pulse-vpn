@@ -2,6 +2,7 @@ import NetInfo from '@react-native-community/netinfo';
 
 import type { DiagnosticLogEntry, DiagnosticsSnapshot, ParseError, ProbeResult } from '../types';
 import { withTimeout } from '../utils/timeout';
+import { getBackgroundRefreshMetadata } from './BackgroundRefreshService';
 
 export interface DiagnosticsInput {
   serverCount: number;
@@ -38,6 +39,14 @@ export class DiagnosticsService {
 
   async createSnapshot(input: DiagnosticsInput): Promise<DiagnosticsSnapshot> {
     const network = await this.checkNetwork();
+    const backgroundRefresh = await getBackgroundRefreshMetadata();
+    const backgroundLog = this.log('debug', 'Background refresh status', {
+      registered: backgroundRefresh.registered,
+      lastRunAt: backgroundRefresh.lastRunAt,
+      lastSuccessAt: backgroundRefresh.lastSuccessAt,
+      lastError: backgroundRefresh.lastError,
+      lastServerCount: backgroundRefresh.lastServerCount,
+    });
     return {
       lastUpdatedAt: new Date().toISOString(),
       internetReachable: network.internetReachable,
@@ -47,7 +56,7 @@ export class DiagnosticsService {
       parseErrors: input.parseErrors,
       probeResults: input.probeResults,
       connectionErrors: input.connectionErrors,
-      logs: this.logs,
+      logs: [backgroundLog, ...this.logs.filter((entry) => entry !== backgroundLog)].slice(0, 200),
     };
   }
 

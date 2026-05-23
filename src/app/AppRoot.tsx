@@ -12,6 +12,7 @@ import { ServersScreen } from '../screens/ServersScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { AppStoreProvider, useAppStore } from '../store/AppStore';
 import { serverListService } from '../services/ServerListService';
+import { registerBackgroundServerRefreshAsync } from '../services/BackgroundRefreshService';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
@@ -71,6 +72,16 @@ function Bootstrap() {
       if (mounted && cached) {
         dispatch({ type: 'subscriptionLoaded', subscription: cached });
       }
+    });
+    registerBackgroundServerRefreshAsync().catch((error) => {
+      dispatch({
+        type: 'logAdded',
+        entry: {
+          level: 'warn',
+          message: error instanceof Error ? error.message : 'Background refresh registration failed',
+          createdAt: new Date().toISOString(),
+        },
+      });
     });
     return () => {
       mounted = false;

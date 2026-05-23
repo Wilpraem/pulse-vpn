@@ -8,6 +8,9 @@ const withVpnCapabilities = (config) => {
       'Pulse VPN uses a packet tunnel to route traffic through the selected VPN server.';
     pluginConfig.modResults.NSLocalNetworkUsageDescription =
       'Pulse VPN probes VPN servers to select the most stable route.';
+    pluginConfig.modResults.UIBackgroundModes = Array.from(
+      new Set([...(pluginConfig.modResults.UIBackgroundModes || []), 'fetch']),
+    );
     return pluginConfig;
   });
 

@@ -40,6 +40,7 @@ export function DiagnosticsScreen() {
             label="Captive portal"
             value={state.diagnostics?.captivePortalLikely ? 'likely' : 'not detected'}
           />
+          <StatLine label="Background refresh" value={state.diagnostics ? 'registered/logged' : 'unknown'} />
           <Pressable style={styles.runButton} onPress={runDiagnostics}>
             <Text style={styles.runText}>Run diagnostics</Text>
           </Pressable>
