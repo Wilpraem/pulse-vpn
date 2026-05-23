@@ -4,6 +4,7 @@ import { AppBackground } from '../components/AppBackground';
 import { GlassCard } from '../components/GlassCard';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { serverListService } from '../services/ServerListService';
+import { diagnosticsService } from '../services/DiagnosticsService';
 import { colors } from '../theme';
 import { DEFAULT_SETTINGS } from '../utils/constants';
 import { useAppStore } from '../store/AppStore';
@@ -15,6 +16,7 @@ export function SettingsScreen() {
   async function clearCache() {
     await serverListService.clearCache();
     dispatch({ type: 'cacheCleared' });
+    dispatch({ type: 'logAdded', entry: diagnosticsService.log('info', 'Local server cache cleared') });
   }
 
   return (

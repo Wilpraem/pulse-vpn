@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AppBackground } from '../components/AppBackground';
 import { GlassCard } from '../components/GlassCard';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { ServerCard } from '../components/ServerCard';
 import { serverListService } from '../services/ServerListService';
+import { diagnosticsService } from '../services/DiagnosticsService';
 import { colors } from '../theme';
 import { useAppStore } from '../store/AppStore';
 
@@ -36,6 +37,20 @@ export function ServersScreen() {
         localCountryCode: state.settings.localCountryCode,
       });
       dispatch({ type: 'subscriptionLoaded', subscription });
+      dispatch({
+        type: 'logAdded',
+        entry: diagnosticsService.log('info', 'Server list refreshed', {
+          count: subscription.servers.length,
+          parseErrors: subscription.parseErrors.length,
+        }),
+      });
+    } catch (error) {
+      const message = diagnosticsService.normalizeError(error);
+      dispatch({
+        type: 'logAdded',
+        entry: diagnosticsService.log('error', 'Server list refresh failed', { error: message }),
+      });
+      Alert.alert('Refresh failed', message);
     } finally {
       setRefreshing(false);
     }

@@ -8,6 +8,7 @@ import { MetricCard } from '../components/MetricCard';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { StatusPill } from '../components/StatusPill';
 import { vpnConnectionService } from '../services/VpnConnectionService';
+import { diagnosticsService } from '../services/DiagnosticsService';
 import { colors } from '../theme';
 import { useAppStore } from '../store/AppStore';
 
@@ -18,6 +19,10 @@ export function HomeScreen() {
   const handleToggle = useCallback(async () => {
     if (connection.status === 'connected' || connection.status === 'connecting') {
       try {
+        dispatch({
+          type: 'logAdded',
+          entry: diagnosticsService.log('info', 'Disconnect requested'),
+        });
         await vpnConnectionService.disconnect((next) =>
           dispatch({ type: 'connectionChanged', connection: next }),
         );
@@ -35,7 +40,19 @@ export function HomeScreen() {
     });
 
     if (!result.success && result.error) {
+      dispatch({
+        type: 'logAdded',
+        entry: diagnosticsService.log('error', 'Connection failed', { error: result.error }),
+      });
       Alert.alert('Connection failed', result.error);
+    } else if (result.server) {
+      dispatch({
+        type: 'logAdded',
+        entry: diagnosticsService.log('info', 'Connection established', {
+          serverId: result.server.id,
+          host: result.server.host,
+        }),
+      });
     }
   }, [connection.status, dispatch, state.settings]);
 

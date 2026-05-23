@@ -1,16 +1,27 @@
 import type { PropsWithChildren } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AppBackground } from '../components/AppBackground';
 import { GlassCard } from '../components/GlassCard';
 import { ScreenHeader } from '../components/ScreenHeader';
+import { diagnosticsService } from '../services/DiagnosticsService';
 import { colors } from '../theme';
 import { useAppStore } from '../store/AppStore';
 
 export function DiagnosticsScreen() {
-  const { state } = useAppStore();
+  const { state, dispatch } = useAppStore();
   const parseErrors = state.subscription?.parseErrors ?? [];
   const reachableCount = state.probeResults.filter((probe) => probe.reachable).length;
+
+  async function runDiagnostics() {
+    const snapshot = await diagnosticsService.createSnapshot({
+      serverCount: state.subscription?.servers.length ?? 0,
+      parseErrors,
+      probeResults: state.probeResults,
+      connectionErrors: state.connectionErrors,
+    });
+    dispatch({ type: 'diagnosticsUpdated', diagnostics: snapshot });
+  }
 
   return (
     <AppBackground>
@@ -21,6 +32,17 @@ export function DiagnosticsScreen() {
           <StatLine label="Reachable" value={String(reachableCount)} />
           <StatLine label="Parser errors" value={String(parseErrors.length)} />
           <StatLine label="Connection" value={state.connection.status} />
+          <StatLine
+            label="Internet"
+            value={state.diagnostics?.internetReachable === false ? 'blocked/offline' : 'unknown/ok'}
+          />
+          <StatLine
+            label="Captive portal"
+            value={state.diagnostics?.captivePortalLikely ? 'likely' : 'not detected'}
+          />
+          <Pressable style={styles.runButton} onPress={runDiagnostics}>
+            <Text style={styles.runText}>Run diagnostics</Text>
+          </Pressable>
         </GlassCard>
 
         <Section title="Last probe results">
@@ -39,6 +61,14 @@ export function DiagnosticsScreen() {
                 {error}
               </Text>
             ))}
+        </Section>
+
+        <Section title="Debug logs">
+          {state.logs.slice(0, 24).map((entry) => (
+            <Text key={`${entry.createdAt}-${entry.message}`} style={styles.logLine}>
+              {entry.createdAt} [{entry.level}] {entry.message}
+            </Text>
+          ))}
         </Section>
       </ScrollView>
     </AppBackground>
@@ -82,6 +112,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     lineHeight: 18,
+  },
+  runButton: {
+    alignItems: 'center',
+    backgroundColor: colors.blue,
+    borderRadius: 18,
+    marginTop: 16,
+    paddingVertical: 13,
+  },
+  runText: {
+    color: '#00111d',
+    fontSize: 14,
+    fontWeight: '900',
   },
   sectionContent: {
     gap: 8,

@@ -3,6 +3,7 @@ import { createContext, type Dispatch, type PropsWithChildren, useContext, useMe
 import type {
   AppSettings,
   DiagnosticLogEntry,
+  DiagnosticsSnapshot,
   ParsedSubscription,
   ProbeResult,
   ServerConfig,
@@ -18,6 +19,7 @@ export interface AppState {
   selectedServer?: ServerConfig;
   logs: DiagnosticLogEntry[];
   connectionErrors: string[];
+  diagnostics?: DiagnosticsSnapshot;
 }
 
 type AppAction =
@@ -27,6 +29,7 @@ type AppAction =
   | { type: 'serverSelected'; server?: ServerConfig }
   | { type: 'settingsChanged'; patch: Partial<AppSettings> }
   | { type: 'logAdded'; entry: DiagnosticLogEntry }
+  | { type: 'diagnosticsUpdated'; diagnostics: DiagnosticsSnapshot }
   | { type: 'cacheCleared' };
 
 const initialState: AppState = {
@@ -82,6 +85,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, settings: { ...state.settings, ...action.patch } };
     case 'logAdded':
       return { ...state, logs: [action.entry, ...state.logs].slice(0, 120) };
+    case 'diagnosticsUpdated':
+      return { ...state, diagnostics: action.diagnostics, logs: action.diagnostics.logs };
     case 'cacheCleared':
       return { ...state, subscription: undefined, probeResults: [], selectedServer: undefined };
   }
