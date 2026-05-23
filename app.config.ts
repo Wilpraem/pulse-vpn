@@ -9,6 +9,20 @@ const config: ExpoConfig = {
   userInterfaceStyle: 'dark',
   newArchEnabled: true,
   splash: { backgroundColor: '#050712' },
+  plugins: [
+    [
+      'expo-build-properties',
+      {
+        ios: {
+          deploymentTarget: '16.0',
+        },
+        android: {
+          minSdkVersion: 26,
+        },
+      },
+    ],
+    './plugins/withVpnCapabilities',
+  ],
   ios: {
     bundleIdentifier: 'com.pulsevpn.app',
     supportsTablet: false,

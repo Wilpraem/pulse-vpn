@@ -17,4 +17,5 @@ export interface NativeVpnBridge {
   start(options: NativeVpnStartOptions): Promise<void>;
   stop(): Promise<void>;
   getStatus(): Promise<NativeVpnStatusEvent>;
+  tcpConnect(host: string, port: number, timeoutMs: number): Promise<number>;
 }

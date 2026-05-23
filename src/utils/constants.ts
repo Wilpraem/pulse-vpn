@@ -17,4 +17,4 @@ export const DEFAULT_SETTINGS: AppSettings = {
   localCountryCode: 'RU',
 };
 
-export const NO_NETWORK_OR_BLOCKED_MESSAGE = 'No internet or the connection is heavily blocked.';
+export const NO_NETWORK_OR_BLOCKED_MESSAGE = 'Нет интернета или соединение сильно блокируется';

@@ -29,6 +29,7 @@
     "expo-linear-gradient": "~14.1.5",
     "expo-modules-core": "~2.5.0",
     "expo-status-bar": "~2.2.3",
+    "pulse-vpn-bridge": "file:modules/vpn-bridge",
     "react": "19.0.0",
     "react-native": "0.79.5",
     "react-native-reanimated": "~3.17.4",
