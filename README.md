@@ -1,160 +1,123 @@
 # Pulse VPN
 
-iOS-first VPN/proxy client built with React Native, Expo, TypeScript and an iOS NetworkExtension foundation.
+React Native + Expo bare/dev-client VPN client for VLESS subscription lists. The app downloads a remote list, parses `vless://` links, probes hosts, ranks candidates, and starts a native VPN bridge.
 
-## Server Source
-
-The app loads:
+Default subscription:
 
 ```text
 https://gitverse.ru/api/repos/zieng2/wl/raw/branch/master/list_universal.txt
 ```
 
-Current analysis: 554 raw `vless://` configs. Observed transports are `tcp`, `xhttp`, `grpc` and `ws`; security is primarily VLESS Reality with some TLS. See `docs/server-format-analysis.md`.
+## Current Build Status
 
-## Architecture
+- Android release APK builds locally: `dist/android/app-release.apk`.
+- iOS simulator build passes.
+- iOS IPA was not produced on this machine because Xcode has a signing certificate in Keychain but no logged-in Apple account/provisioning profiles for `com.pulsevpn.app` and `com.pulsevpn.app.PacketTunnel`.
+- Real VPN traffic requires bundling sing-box/libbox. The Android bridge is wired to call `io.nekohasekai.libbox` through `VpnService` when `libbox.aar` is added. The iOS Packet Tunnel target is present, but `Libbox.xcframework` still has to be linked and the platform interface completed.
 
-- `ServerListService`: downloads and caches the subscription.
-- `ServerParserService`: parses VLESS configs and keeps broken lines as parse errors.
-- `ServerProbeService`: runs limited-concurrency probes with retries and timeout.
-- `ServerSelectionService`: ranks reachable servers by foreign-country preference, latency, jitter, protocol validity and last successful server fallback.
-- `VpnConnectionService`: orchestrates internet check, refresh, parse, probe, rank and native VPN start with fallback candidates.
-- `DiagnosticsService`: network state, captive portal signal, parser/probe/connection errors and debug logs.
-- `BackgroundRefreshService`: registers a 30-minute server-list refresh task using Expo Background Fetch.
-- `modules/vpn-bridge`: Expo native module for iOS `NETunnelProviderManager` and TCP probe.
-- `ios/PacketTunnel`: `NEPacketTunnelProvider` extension source.
+The app does not fake a connected tunnel: missing core/signing fails with explicit native errors.
 
-## Why sing-box/libbox
+## Requirements
 
-The source uses VLESS Reality and xHTTP. These protocols are not safe to implement manually in a mobile app. The production path is sing-box/libbox inside `NEPacketTunnelProvider`, because it supports VLESS, Reality, TLS and multiple transports through a maintained core.
+- Node.js 20+ and npm.
+- Xcode with iOS simulator/device support.
+- CocoaPods.
+- Android SDK.
+- JDK 17. On this machine: `/opt/homebrew/opt/openjdk@17`.
+- Optional for real core builds: Go, gomobile, Android NDK, and sing-box/libbox build tooling.
 
-The repository contains the iOS extension and bridge foundation. It intentionally does not fake a connected state: without `Libbox.xcframework` and a concrete libbox platform interface, the Packet Tunnel fails with a clear native error.
-
-## Server Selection
-
-On Connect:
-
-1. Check internet reachability.
-2. Download a fresh subscription.
-3. Parse all configs and cache the result.
-4. Probe servers with limited concurrency.
-5. Use median latency from multiple attempts and jitter.
-6. Drop unavailable servers.
-7. Prefer foreign countries when available.
-8. Select the lowest stable latency.
-9. Try next ranked candidates if VPN start fails.
-
-If nothing is reachable, the app shows: `Нет интернета или соединение сильно блокируется`.
-
-## Background Refresh
-
-The app registers `pulsevpn.server-list.refresh.v1` with `minimumInterval: 1800` seconds. Android can run this close to the requested period depending on battery policy. iOS Background Fetch is opportunistic: Apple does not guarantee exact 30-minute execution, but the app declares `UIBackgroundModes=fetch` and requests the minimum 30-minute interval.
-
-## Probe Strategy
-
-- iOS custom dev client/native build: native TCP connect probe via `NWConnection`.
-- Expo Go/no native bridge: HTTP fallback is attempted, but VLESS endpoints usually require native TCP probing.
-- ICMP is not used by default because iOS restricts raw sockets for App Store apps.
-
-## iOS Setup
-
-Install dependencies:
+## Install
 
 ```bash
-npm install
+npm ci
+cd ios && pod install && cd ..
 ```
 
-Prebuild and add the extension target:
+## Run
 
 ```bash
-npm run prebuild:ios
+npm run start
+npm run android
+npm run ios
 ```
 
-Run on simulator/device:
+Expo Go is not supported because the app uses native VPN modules.
+
+## Build Android APK
 
 ```bash
-npx expo run:ios
+npm run build:android:apk
 ```
 
-For a real device and IPA you need an Apple Developer account, a signing team and these capabilities enabled for app and extension targets:
+Output:
 
-- Network Extensions.
-- Packet Tunnel Provider.
-- App Groups: `group.com.pulsevpn.shared`.
+```text
+dist/android/app-release.apk
+```
 
-Production VPN traffic also requires linking sing-box `Libbox.xcframework` and wiring the platform interface in `ios/PacketTunnel/SingBoxEngine.swift`.
+For real Android VLESS routing, add official sing-box `libbox.aar` to the Android app classpath so `io.nekohasekai.libbox.*` exists at runtime. Without it, the APK installs and the VPN permission/service path is present, but the tunnel cannot route traffic.
 
-## Build IPA
+## Build iOS IPA
 
-Local Xcode archive:
+1. Open Xcode and sign in under Settings -> Accounts.
+2. Create explicit App IDs for:
+   - `com.pulsevpn.app`
+   - `com.pulsevpn.app.PacketTunnel`
+3. Enable Network Extensions / Packet Tunnel Provider and App Groups for both targets.
+4. Set the same team for `PulseVPN` and `PacketTunnel`.
+5. Run:
 
 ```bash
-npm run prebuild:ios
-open ios/*.xcworkspace
+APPLE_TEAM_ID=<YOUR_TEAM_ID> npm run build:ios:ipa
 ```
 
-In Xcode: select a real device destination, configure signing, archive, then distribute Ad Hoc/TestFlight/App Store.
+Output, when signing succeeds:
 
-EAS Build:
+```text
+dist/ios/App.ipa
+```
+
+Free Apple accounts usually cannot create/distribute a universal IPA with NetworkExtension. In that case use Xcode to run directly on the connected iPhone with automatic signing.
+
+## Configure Subscription URL
+
+Change it in app settings at runtime or edit:
+
+```text
+src/utils/constants.ts
+app.config.ts
+```
+
+The app caches the last successful list and falls back to it when the remote URL is unavailable.
+
+## Diagnostics
+
+- `npm run test`: parser and ranking tests.
+- `npm run typecheck`: TypeScript.
+- `npm run lint`: ESLint.
+- Android logs: `adb logcat | grep PulseVpn`.
+- iOS logs: Xcode Devices and Simulators console, filter `PacketTunnel` or `PulseVpnBridge`.
+
+## Privacy And Security
+
+- VLESS UUIDs and raw URLs are not shown in normal UI logs.
+- The app contacts the configured subscription URL and selected VPN server.
+- `ipapi.co` is used only after a connection attempt to display external IP metadata.
+- Settings and cached public subscription data are in local app storage. Move private paid configs to Keychain/Keystore before production use.
+
+## GitHub
 
 ```bash
-npm install -g eas-cli
-eas login
-eas build -p ios --profile production
+git remote add origin <MY_GITHUB_REPO_URL>
+git branch -M main
+git push -u origin main
 ```
-
-## Android APK/AAB
-
-Android is prepared as the second stage. Basic Expo config is present.
-
-```bash
-npx expo prebuild -p android
-npx expo run:android
-eas build -p android --profile production
-```
-
-Local APK:
-
-```bash
-npm run build:android:local
-```
-
-Android real VPN support still needs a platform VPN service using the same sing-box core.
-
-## Tests
-
-```bash
-npm test
-npm run typecheck
-npm run lint
-```
-
-Covered:
-
-- VLESS parser.
-- Broken config handling.
-- Best server ranking.
-- Unavailable server filtering.
-- Last successful server fallback.
 
 ## Troubleshooting
 
-- `PulseVpnBridge is unavailable`: use a custom dev client or native iOS build, not Expo Go.
-- `Libbox.xcframework is not linked`: build/link sing-box libbox before starting a real tunnel.
-- VPN permission dialog does not appear: check Network Extensions entitlement and signing team.
-- No reachable servers: network is offline, blocked, captive portal, or native TCP probe is unavailable.
-- EAS signing fails: create explicit App ID for app and extension and enable Network Extensions in Apple Developer.
-
-## Security And Privacy
-
-- Configs are cached locally with AsyncStorage. If paid/private configs are added later, move secrets to Keychain.
-- Debug logs avoid storing full raw URIs in UI.
-- The app fetches external IP only after a successful connection attempt.
-- The subscription URL is public and unauthenticated.
-
-## Known Limitations
-
-- Real iOS packet forwarding requires completing the sing-box/libbox platform interface.
-- Apple Network Extension entitlements require Apple Developer approval/signing.
-- Expo Go cannot run NetworkExtension or native TCP probes.
-- Android VPN implementation is intentionally scoped for the next stage.
+- `PulseVpnBridge is unavailable`: use a native build/dev client, not Expo Go.
+- `ClassNotFoundException: io.nekohasekai.libbox.Libbox`: add `libbox.aar`.
+- `Libbox.xcframework is not linked`: build/link sing-box libbox for iOS.
+- iOS `No Account for Team`: sign into Xcode Accounts and create provisioning profiles.
+- VPN dialog does not appear: check Android `VpnService` manifest or iOS NetworkExtension entitlements.
+- Empty/broken list: parser keeps errors and the UI should remain usable with zero valid servers.
