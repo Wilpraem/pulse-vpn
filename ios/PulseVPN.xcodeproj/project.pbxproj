@@ -38,9 +38,9 @@
 		13B07F961A680F5B00A75B9A /* PulseVPN.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PulseVPN.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = PulseVPN/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = PulseVPN/Info.plist; sourceTree = "<group>"; };
-		339226762631E2CF1BFFD251 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = PulseVPN/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		339226762631E2CF1BFFD251 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = PulseVPN/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		588FE9D210F4A7A4352E9E96 /* libPods-PulseVPN.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PulseVPN.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		6AC82522F6BBEAF7FC162CE0 /* PacketTunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; name = PacketTunnel.appex; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6AC82522F6BBEAF7FC162CE0 /* PacketTunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		722798134634D391B60AFA34 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-PulseVPN/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		73D9122271DB1790D1AC1D85 /* Pods-PulseVPN.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PulseVPN.release.xcconfig"; path = "Target Support Files/Pods-PulseVPN/Pods-PulseVPN.release.xcconfig"; sourceTree = "<group>"; };
 		A7AE7660853D3E37F66CB6E5 /* SingBoxEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SingBoxEngine.swift; path = PacketTunnel/SingBoxEngine.swift; sourceTree = "<group>"; };
@@ -120,7 +120,6 @@
 				BD7DB94E667A45612B106139 /* Pods-PulseVPN.debug.xcconfig */,
 				73D9122271DB1790D1AC1D85 /* Pods-PulseVPN.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -419,11 +418,12 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6B8G85DWLS;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MARKETING_VERSION = 0.1.0;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.pulsevpn.app.PacketTunnel;
+				PRODUCT_BUNDLE_IDENTIFIER = com.geetanjalipau.backitfunnel;
 				PRODUCT_MODULE_NAME = PacketTunnel;
 				PRODUCT_NAME = PacketTunnel;
 				SDKROOT = iphoneos;
@@ -441,6 +441,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PulseVPN/PulseVPN.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6B8G85DWLS;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -477,6 +478,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PulseVPN/PulseVPN.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6B8G85DWLS;
 				INFOPLIST_FILE = PulseVPN/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -554,10 +556,7 @@
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -612,10 +611,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -629,11 +625,12 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6B8G85DWLS;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MARKETING_VERSION = 0.1.0;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.pulsevpn.app.PacketTunnel;
+				PRODUCT_BUNDLE_IDENTIFIER = com.geetanjalipau.backitfunnel;
 				PRODUCT_MODULE_NAME = PacketTunnel;
 				PRODUCT_NAME = PacketTunnel;
 				SDKROOT = iphoneos;
