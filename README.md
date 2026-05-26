@@ -1,39 +1,39 @@
 # Pulse VPN
 
-React Native + Expo bare/dev-client VPN client for VLESS subscription lists. The app downloads a remote list, parses `vless://` links, probes hosts, ranks candidates, and starts a native VPN bridge.
+React Native + Expo bare/dev-client VPN-клиент для списков подписок VLESS. Приложение загружает удаленный список, парсит ссылки `vless://`, опрашивает хосты, ранжирует кандидатов и запускает нативный VPN-мост.
 
-Default subscription:
+Подписка по умолчанию:
 
 ```text
 https://gitverse.ru/api/repos/zieng2/wl/raw/branch/master/list_universal.txt
 ```
 
-## Current Build Status
+## Текущий статус сборки
 
-- Android release APK builds locally: `dist/android/app-release.apk`.
-- iOS simulator build passes.
-- iOS IPA was not produced on this machine because Xcode has a signing certificate in Keychain but no logged-in Apple account/provisioning profiles for `com.pulsevpn.app` and `com.pulsevpn.app.PacketTunnel`.
-- Real VPN traffic requires bundling sing-box/libbox. The Android bridge is wired to call `io.nekohasekai.libbox` through `VpnService` when `libbox.aar` is added. The iOS Packet Tunnel target is present, but `Libbox.xcframework` still has to be linked and the platform interface completed.
+- Локальная сборка Android APK в режиме release проходит успешно: `dist/android/app-release.apk`.
+- Сборка для симулятора iOS проходит успешно.
+- Файл iOS IPA не был создан на этом компьютере, так как в Связке ключей Xcode есть сертификат подписи, но нет вошедшего в систему аккаунта Apple или профилей подготовки (provisioning profiles) для `com.pulsevpn.app` и `com.pulsevpn.app.PacketTunnel`.
+- Реальный трафик VPN требует сборки sing-box/libbox. Android-мост настроен на вызов `io.nekohasekai.libbox` через `VpnService`, когда добавлен файл `libbox.aar`. Таргет iOS Packet Tunnel присутствует, но `Libbox.xcframework` еще предстоит подключить и завершить реализацию интерфейса платформы.
 
-The app does not fake a connected tunnel: missing core/signing fails with explicit native errors.
+Приложение не имитирует подключенный туннель: отсутствие ядра/ошибки подписи приводят к явным нативным ошибкам.
 
-## Requirements
+## Требования
 
-- Node.js 20+ and npm.
-- Xcode with iOS simulator/device support.
+- Node.js 20+ и npm.
+- Xcode с поддержкой симулятора/устройств iOS.
 - CocoaPods.
 - Android SDK.
-- JDK 17. On this machine: `/opt/homebrew/opt/openjdk@17`.
-- Optional for real core builds: Go, gomobile, Android NDK, and sing-box/libbox build tooling.
+- JDK 17. На этой машине используется: `/opt/homebrew/opt/openjdk@17`.
+- Необязательно для сборки реального ядра: Go, gomobile, Android NDK и инструменты сборки sing-box/libbox.
 
-## Install
+## Установка
 
 ```bash
 npm ci
 cd ios && pod install && cd ..
 ```
 
-## Run
+## Запуск
 
 ```bash
 npm run start
@@ -41,69 +41,69 @@ npm run android
 npm run ios
 ```
 
-Expo Go is not supported because the app uses native VPN modules.
+Expo Go не поддерживается, так как приложение использует нативные модули VPN.
 
-## Build Android APK
+## Сборка Android APK
 
 ```bash
 npm run build:android:apk
 ```
 
-Output:
+Результат:
 
 ```text
 dist/android/app-release.apk
 ```
 
-For real Android VLESS routing, add official sing-box `libbox.aar` to the Android app classpath so `io.nekohasekai.libbox.*` exists at runtime. Without it, the APK installs and the VPN permission/service path is present, but the tunnel cannot route traffic.
+Для реальной маршрутизации VLESS в Android добавьте официальный `libbox.aar` от sing-box в classpath Android-приложения, чтобы класс `io.nekohasekai.libbox.*` был доступен во время выполнения. Без него APK установится, разрешение на VPN и сервис будут присутствовать, но туннель не сможет маршрутизировать трафик.
 
-## Build iOS IPA
+## Сборка iOS IPA
 
-1. Open Xcode and sign in under Settings -> Accounts.
-2. Create explicit App IDs for:
+1. Откройте Xcode и войдите в систему в Settings -> Accounts.
+2. Создайте явные App ID для:
    - `com.pulsevpn.app`
    - `com.pulsevpn.app.PacketTunnel`
-3. Enable Network Extensions / Packet Tunnel Provider and App Groups for both targets.
-4. Set the same team for `PulseVPN` and `PacketTunnel`.
-5. Run:
+3. Включите Network Extensions / Packet Tunnel Provider и App Groups для обоих таргетов.
+4. Установите одну и ту же команду (team) для `PulseVPN` и `PacketTunnel`.
+5. Запустите:
 
 ```bash
-APPLE_TEAM_ID=<YOUR_TEAM_ID> npm run build:ios:ipa
+APPLE_TEAM_ID=<ВАШ_TEAM_ID> npm run build:ios:ipa
 ```
 
-Output, when signing succeeds:
+Результат при успешной подписи:
 
 ```text
 dist/ios/App.ipa
 ```
 
-Free Apple accounts usually cannot create/distribute a universal IPA with NetworkExtension. In that case use Xcode to run directly on the connected iPhone with automatic signing.
+Бесплатные аккаунты Apple обычно не могут создавать/распространять универсальные IPA с NetworkExtension. В этом случае используйте Xcode для запуска напрямую на подключенном iPhone с автоматической подписью.
 
-## Configure Subscription URL
+## Настройка URL-адреса подписки
 
-Change it in app settings at runtime or edit:
+Измените его в настройках приложения во время выполнения или отредактируйте:
 
 ```text
 src/utils/constants.ts
 app.config.ts
 ```
 
-The app caches the last successful list and falls back to it when the remote URL is unavailable.
+Приложение кеширует последний успешно загруженный список и использует его в качестве резервного, если удаленный URL недоступен.
 
-## Diagnostics
+## Диагностика
 
-- `npm run test`: parser and ranking tests.
-- `npm run typecheck`: TypeScript.
+- `npm run test`: тесты парсера и ранжирования.
+- `npm run typecheck`: проверка типов TypeScript.
 - `npm run lint`: ESLint.
-- Android logs: `adb logcat | grep PulseVpn`.
-- iOS logs: Xcode Devices and Simulators console, filter `PacketTunnel` or `PulseVpnBridge`.
+- Логи Android: `adb logcat | grep PulseVpn`.
+- Логи iOS: консоль Xcode Devices and Simulators, фильтр по `PacketTunnel` или `PulseVpnBridge`.
 
-## Privacy And Security
+## Конфиденциальность и безопасность
 
-- VLESS UUIDs and raw URLs are not shown in normal UI logs.
-- The app contacts the configured subscription URL and selected VPN server.
-- `ipapi.co` is used only after a connection attempt to display external IP metadata.
-- Settings and cached public subscription data are in local app storage. Move private paid configs to Keychain/Keystore before production use.
+- UUID VLESS и полные URL-адреса не отображаются в обычных логах интерфейса.
+- Приложение обращается к настроенному URL подписки и выбранному серверу VPN.
+- `ipapi.co` используется только после попытки подключения для отображения метаданных внешнего IP.
+- Настройки и кешированные публичные данные подписки хранятся в локальном хранилище приложения. Перенесите приватные платные конфигурации в Keychain/Keystore перед использованием в продакшене.
 
 ## GitHub
 
@@ -113,11 +113,11 @@ git branch -M main
 git push -u origin main
 ```
 
-## Troubleshooting
+## Устранение неполадок
 
-- `PulseVpnBridge is unavailable`: use a native build/dev client, not Expo Go.
-- `ClassNotFoundException: io.nekohasekai.libbox.Libbox`: add `libbox.aar`.
-- `Libbox.xcframework is not linked`: build/link sing-box libbox for iOS.
-- iOS `No Account for Team`: sign into Xcode Accounts and create provisioning profiles.
-- VPN dialog does not appear: check Android `VpnService` manifest or iOS NetworkExtension entitlements.
-- Empty/broken list: parser keeps errors and the UI should remain usable with zero valid servers.
+- `PulseVpnBridge is unavailable`: используйте нативную сборку или dev-клиент, а не Expo Go.
+- `ClassNotFoundException: io.nekohasekai.libbox.Libbox`: добавьте `libbox.aar`.
+- `Libbox.xcframework is not linked`: соберите/подключите sing-box libbox для iOS.
+- iOS `No Account for Team`: войдите в Xcode Accounts и создайте профили подготовки.
+- Диалоговое окно VPN не появляется: проверьте манифест `VpnService` в Android или entitlements NetworkExtension в iOS.
+- Список пуст/сломан: парсер сохраняет ошибки сборки, и интерфейс должен оставаться работоспособным даже при отсутствии рабочих серверов.
