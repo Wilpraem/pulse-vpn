@@ -422,6 +422,7 @@
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MARKETING_VERSION = 0.1.0;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.pulsevpn.app.PacketTunnel;
 				PRODUCT_MODULE_NAME = PacketTunnel;
 				PRODUCT_NAME = PacketTunnel;
@@ -631,6 +632,7 @@
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MARKETING_VERSION = 0.1.0;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.pulsevpn.app.PacketTunnel;
 				PRODUCT_MODULE_NAME = PacketTunnel;
 				PRODUCT_NAME = PacketTunnel;
